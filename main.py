@@ -1,7 +1,8 @@
+from datetime import date
+import random
 from pathlib import Path
 from PIL import Image, ImageOps
 import numpy as np
-from datetime import date
 
 import tensorflow as tf
 from tensorflow.keras.datasets import mnist
@@ -21,7 +22,7 @@ x_test = x_test / 255
 
 
 NUMBER_LAYERS = 3
-EPOCHS = 15
+EPOCHS = 20
 OPTIMIZER = "adam"
 DATE = date.today().strftime("%d-%m-%Y")
 FILENAME = "DigitNN-{}-{}-{}-{}.h5".format(
@@ -38,9 +39,7 @@ def train(x_train, y_train, epochs=20, optimizer="adam"):
     model = Sequential()
     model.add(Flatten())
     model.add(Dense(392, activation="relu"))
-    model.add(Dropout(0.2))
     model.add(Dense(196, activation="relu"))
-    model.add(Dropout(0.3))
     model.add(Dense(20, activation="relu"))
     model.add(Dropout(0.2))
     model.add(Dense(10, activation="softmax"))
@@ -51,6 +50,7 @@ def train(x_train, y_train, epochs=20, optimizer="adam"):
     model.summary()
     model.save(FILENAME)
     print_history(history)
+    model.evaluate(x_test, y_test)
     return model
 
 
@@ -70,12 +70,9 @@ def print_history(history):
 
 model = train(x_train, y_train, EPOCHS, OPTIMIZER)
 
-
-model.evaluate(x_test, y_test)
-
-
-pred = model.predict(x_test[88].reshape(1, 28, 28, 1))
-
-plt.imshow(x_test[88], cmap="gray")
+# EXAMPLE PREDICTION
+arbitrary_number = random.randrange(0, 10000, 1)
+pred = model.predict(x_test[arbitrary_number].reshape(1, 28, 28, 1))
+plt.imshow(x_test[arbitrary_number], cmap="gray")
 plt.title(str(pred.argmax()))
 plt.show()
