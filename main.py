@@ -21,7 +21,7 @@ x_test = x_test / 255
 
 
 NUMBER_LAYERS = 3
-EPOCHS = 10
+EPOCHS = 15
 OPTIMIZER = "adam"
 DATE = date.today().strftime("%d-%m-%Y")
 FILENAME = "DigitNN-{}-{}-{}-{}.h5".format(
