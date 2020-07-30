@@ -1,3 +1,13 @@
+# Proyecto Final
+# Clustering with kmeans a group of numbers from an image, crop and then predict the label with a NN
+
+# Place
+# Tecnologico de Monterrey Campus Ciudad de México
+
+# Contributors:
+# Andrea Beatriz Becerra Bolaños - A01337434
+# Guillermo David Aguilar Castilleja - A01337242
+
 from datetime import date
 import random
 from pathlib import Path
@@ -18,15 +28,7 @@ IMAGE_ONE = Image.open("img/data_images.jpeg")
 IMAGE_TWO = Image.open("img/prueba1.png")
 IMAGE_THREE = Image.open("img/prueba2.png")
 
-
-# DATA
-(x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
-
-# NORMALIZING DATA
-x_train = x_train / 255
-x_test = x_test / 255
-
-
+# NET CONSTANTS
 NUMBER_LAYERS = 3
 EPOCHS = 20
 OPTIMIZER = "adam"
@@ -35,6 +37,14 @@ FILENAME = "DigitNN-{}-{}-{}-{}.h5".format(
     NUMBER_LAYERS, OPTIMIZER, EPOCHS, DATE)
 
 BEST_NET = "DigitNN-3-adam-20-29-07-2020.h5"
+
+
+# DATA
+(x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
+
+# NORMALIZING DATA
+x_train = x_train / 255
+x_test = x_test / 255
 
 
 # MODEL
@@ -139,18 +149,22 @@ def cluster(pairs, k):
     return cluster
 
 
+def predict_images(images):
+
+    _, axs = plt.subplots(1, len(images))
+
+    for i in range(len(images)):
+        image = np.asarray(images[i])
+        pred = model.predict(image.reshape(1, 28, 28, 1))
+        axs[i].set_title(str(pred.argmax()))
+        axs[i].imshow(image, cmap="gray")
+        axs[i].axis('off')
+
+    plt.show()
+
+
 model = train(x_train, y_train, EPOCHS, OPTIMIZER, BEST_NET)
 
 images = image_preprocessing(IMAGE_THREE, 10, True)
 
-
-_, axs = plt.subplots(1, len(images))
-
-for i in range(len(images)):
-    image = np.asarray(images[i])
-    pred = model.predict(image.reshape(1, 28, 28, 1))
-    axs[i].set_title(str(pred.argmax()))
-    axs[i].imshow(image, cmap="gray")
-    axs[i].axis('off')
-
-plt.show()
+predict_images(images)
