@@ -72,8 +72,6 @@ def train(x_train, y_train, epochs=20, optimizer="adam", net=FILENAME):
     model.add(Flatten())
     model.add(Dense(392, activation="relu"))
     model.add(Dropout(0.4))
-    model.add(Dense(196, activation="relu"))
-    model.add(Dropout(0.2))
     model.add(Dense(128, activation="relu"))
     model.add(Dropout(0.2))
     model.add(Dense(10, activation="softmax"))
@@ -197,9 +195,9 @@ model = train(x_train, y_train, EPOCHS, OPTIMIZER, net=FILENAME)
 
 # BEST TRY
 # DigitNN-Layers3-Adam-15epochs-30-07-2020
-# IMAGE_ONE 12/16 16 False %
-# IMAGE_TWO 7/10 10 True  0% 
-# IMAGE_THREE 7/10 10 True  70%
+# IMAGE_ONE 12/16 16 False 62%
+# IMAGE_TWO 7/10 10 True 70% 
+# IMAGE_THREE 7/10 10 True 70%
 
 # # SECOND BEST
 # DigitNN-3-Nadam-20epochs-30-07-2020
@@ -216,7 +214,7 @@ model = train(x_train, y_train, EPOCHS, OPTIMIZER, net=FILENAME)
  
 # IMAGE CLUSTERING AND SEGMENTATION
 # CLUSTERING: KMEANS
-images = image_preprocessing(IMAGE_THREE, 10, True)
+images = image_preprocessing(IMAGE_ONE, 16, False)
 
 # RESULTS
 predict_images(images)
