@@ -35,10 +35,10 @@ IMAGE_FOUR = Image.open("img/prueba3.jpeg")
 
 # NET CONSTANTS
 NUMBER_LAYERS = 3
-EPOCHS = 10
+EPOCHS = 15
 OPTIMIZER = "Adam"
 DATE = date.today().strftime("%d-%m-%Y")
-FILENAME = "DigitNN-{}-{}-{}epochs-{}.h5".format(
+FILENAME = "DigitNN-Layers{}-{}-{}epochs-{}.h5".format(
     NUMBER_LAYERS, OPTIMIZER, EPOCHS, DATE)
 
 BEST_NET = "DigitNN-3-adam-20-29-07-2020.h5"
@@ -71,10 +71,10 @@ def train(x_train, y_train, epochs=20, optimizer="adam", net=FILENAME):
     model = Sequential()
     model.add(Flatten())
     model.add(Dense(392, activation="relu"))
-    model.add(Dropout(0.2))
-    model.add(Dense(196, activation="relu"))
     model.add(Dropout(0.4))
-    model.add(Dense(40, activation="relu"))
+    model.add(Dense(196, activation="relu"))
+    model.add(Dropout(0.2))
+    model.add(Dense(128, activation="relu"))
     model.add(Dropout(0.2))
     model.add(Dense(10, activation="softmax"))
     model.compile(optimizer=optimizer,
@@ -181,15 +181,34 @@ def predict_images(images):
 
 
 # TRAINING OR IMPORTING THE MODEL
-model = train(x_train, y_train, EPOCHS, OPTIMIZER, net=BEST_NET)
+model = train(x_train, y_train, EPOCHS, OPTIMIZER, net=FILENAME)
 
 # BEST TRY
 # DigitNN-3-adam-20-29-07-2020
-# IMAGE_ONE 13/16 16 False 81.25%
+# IMAGE_ONE 12/16 16 False 75%
 # IMAGE_TWO 7/10 10 True  70% 
 # IMAGE_THREE 8/10 10 True  80%
-#  
-# SECOND BEST
+
+# BEST TRY
+# DigitNN-Layers3-Adam-20epochs-30-07-2020
+# IMAGE_ONE 12/16 16 False 75%
+# IMAGE_TWO 7/10 10 True  70% 
+# IMAGE_THREE 5/10 10 True  50%
+
+# BEST TRY
+# DigitNN-Layers3-Adam-15epochs-30-07-2020
+# IMAGE_ONE 12/16 16 False %
+# IMAGE_TWO 7/10 10 True  0% 
+# IMAGE_THREE 7/10 10 True  70%
+
+# # SECOND BEST
+# DigitNN-3-Nadam-20epochs-30-07-2020
+# IMAGE_ONE 12/16 16 False 75%
+# IMAGE_TWO 8/10 10 True  80% 
+# IMAGE_THREE 6/10 10 True  60%  
+
+
+# THIRD BEST
 # DigitNN-3-Adam-15epochs-30-07-2020
 # IMAGE_ONE 11/16  16 False  68.75%
 # IMAGE_TWO 7/10 10 True  70% 
@@ -197,7 +216,7 @@ model = train(x_train, y_train, EPOCHS, OPTIMIZER, net=BEST_NET)
  
 # IMAGE CLUSTERING AND SEGMENTATION
 # CLUSTERING: KMEANS
-images = image_preprocessing(IMAGE_ONE, 16, False)
+images = image_preprocessing(IMAGE_THREE, 10, True)
 
 # RESULTS
 predict_images(images)
