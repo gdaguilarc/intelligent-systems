@@ -3,8 +3,6 @@ import numpy as np
 from sklearn.cluster import KMeans, DBSCAN
 import matplotlib.pyplot as plt
 
-from sklearn.cluster import AgglomerativeClustering
-
 
 image = Image.open("numeros.jpeg")
 gray = ImageOps.grayscale(image)
@@ -27,8 +25,6 @@ clusters = dbscan.fit_predict(points)
 positions = np.where(clusters == 8)
 prov = points[positions][:]
 
-# plt.scatter(prov[:, 1], prov[:, 0], cmap='plasma')
-# plt.show()
 
 # get max and mins
 y_max = prov[:, 0].max()
@@ -38,13 +34,16 @@ x_min = prov[:, 1].min()
 area = (x_min, y_min, x_max, y_max)
 
 img = Image.fromarray(data)
-plt.imshow(img)
-plt.show()
-print(area)
+
 img = img.crop(area)
+
+
+img = img.resize((24, 24))
+A = np.array(img)
+no_pd = np.pad(A, ((4, 4), (4, 4)), "constant", constant_values=255)
+img = Image.fromarray(no_pd)
 img.show()
 
-print(data.shape)
 # print(area)
 # print(x_max)
 # print(image.size)
@@ -54,5 +53,4 @@ print(data.shape)
 # print(area)
 # print(image.size)
 # ola = gray.crop(area)
-
 # ola.show()

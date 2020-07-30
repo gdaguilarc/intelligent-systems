@@ -2,6 +2,7 @@ from datetime import date
 import random
 from pathlib import Path
 from PIL import Image, ImageOps
+from sklearn.cluster import KMeans
 import numpy as np
 
 import tensorflow as tf
@@ -11,6 +12,11 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.models import load_model
 
 from matplotlib import pyplot as plt
+
+# IMAGES
+IMAGE_ONE = Image.open("img/data_images.jpeg")
+IMAGE_TWO = Image.open("img/prueba1.png")
+IMAGE_THREE = Image.open("img/prueba2.png")
 
 
 # DATA
@@ -28,18 +34,22 @@ DATE = date.today().strftime("%d-%m-%Y")
 FILENAME = "DigitNN-{}-{}-{}-{}.h5".format(
     NUMBER_LAYERS, OPTIMIZER, EPOCHS, DATE)
 
+BEST_NET = "DigitNN-3-adam-20-29-07-2020.h5"
+
 
 # MODEL
-def train(x_train, y_train, epochs=20, optimizer="adam"):
-    my_file = Path(FILENAME)
+def train(x_train, y_train, epochs=20, optimizer="adam", net=FILENAME):
+    my_file = Path("models/" + FILENAME)
     if my_file.is_file():
-        model = load_model(FILENAME)
+        model = load_model("models/" + FILENAME)
         return model
 
     model = Sequential()
     model.add(Flatten())
     model.add(Dense(392, activation="relu"))
+    model.add(Dropout(0.4))
     model.add(Dense(196, activation="relu"))
+    model.add(Dropout(0.2))
     model.add(Dense(20, activation="relu"))
     model.add(Dropout(0.2))
     model.add(Dense(10, activation="softmax"))
@@ -68,11 +78,79 @@ def print_history(history):
     plt.show()
 
 
-model = train(x_train, y_train, EPOCHS, OPTIMIZER)
+def image_preprocessing(img, k, inverted=True):
+    img = ImageOps.grayscale(img)
+    if inverted:
+        img = ImageOps.invert(img)
+    img = np.asarray(img)
+    pairs = pair_points(img)
 
-# EXAMPLE PREDICTION
-arbitrary_number = random.randrange(0, 10000, 1)
-pred = model.predict(x_test[arbitrary_number].reshape(1, 28, 28, 1))
-plt.imshow(x_test[arbitrary_number], cmap="gray")
-plt.title(str(pred.argmax()))
+    cluster_labels = cluster(pairs, k)
+
+    images = []
+    for i in range(k):
+        images.append(cutted_digit(cluster_labels, img, pairs, i))
+
+    return images
+
+
+def cutted_digit(cluster, img, pairs, index, inverted=True):
+    positions = np.where(cluster == index)
+    img_boundaries = pairs[positions][:]
+
+    # Get Square
+    y_max = img_boundaries[:, 0].max()
+    x_max = img_boundaries[:, 1].max()
+    y_min = img_boundaries[:, 0].min()
+    x_min = img_boundaries[:, 1].min()
+    area = (x_min, y_min, x_max, y_max)
+
+    cutted = Image.fromarray(img)
+    cutted = cutted.crop(area)
+
+    resized = cutted.resize((20, 20))
+    # resized.show()  # Borrar
+
+    resized = np.array(resized)
+
+    resized = Image.fromarray(resized)
+    resized = ImageOps.invert(resized)
+    resized = np.asarray(resized)
+    return Image.fromarray(np.pad(resized, ((4, 4), (4, 4)), "constant", constant_values=0))
+
+
+def pair_points(data):
+    points = []
+    max_x = len(data)
+    max_y = len(data[0])
+    for i in range(max_x):
+        for j in range(max_y):
+            if data[i][j] < 125:
+                points.append((i, j))
+
+    return np.array(points)
+
+
+def cluster(pairs, k):
+    dbscan = KMeans(n_clusters=k)
+    cluster = dbscan.fit_predict(pairs)
+    plt.scatter(pairs[:, 1], pairs[:, 0], c=cluster, cmap='plasma')
+    plt.show()
+    return cluster
+
+
+model = train(x_train, y_train, EPOCHS, OPTIMIZER, BEST_NET)
+
+images = image_preprocessing(IMAGE_THREE, 10, True)
+
+
+_, axs = plt.subplots(1, len(images))
+
+for i in range(len(images)):
+    image = np.asarray(images[i])
+    pred = model.predict(image.reshape(1, 28, 28, 1))
+    axs[i].set_title(str(pred.argmax()))
+    axs[i].imshow(image, cmap="gray")
+    axs[i].axis('off')
+
 plt.show()
