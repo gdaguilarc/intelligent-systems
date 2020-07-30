@@ -30,6 +30,8 @@ from matplotlib import pyplot as plt
 IMAGE_ONE = Image.open("img/data_images.jpeg")
 IMAGE_TWO = Image.open("img/prueba1.png")
 IMAGE_THREE = Image.open("img/prueba2.png")
+IMAGE_FOUR = Image.open("img/prueba3.png")
+
 
 # NET CONSTANTS
 NUMBER_LAYERS = 3
@@ -168,6 +170,6 @@ def predict_images(images):
 
 model = train(x_train, y_train, EPOCHS, OPTIMIZER, BEST_NET)
 
-images = image_preprocessing(IMAGE_THREE, 10, True)
+images = image_preprocessing(IMAGE_FOUR, 28, False)
 
 predict_images(images)
