@@ -1,12 +1,15 @@
 # Proyecto Final
 # Clustering with kmeans a group of numbers from an image, crop and then predict the label with a NN
 
-# Place
+# Location:
 # Tecnologico de Monterrey Campus Ciudad de México
 
 # Contributors:
 # Andrea Beatriz Becerra Bolaños - A01337434
 # Guillermo David Aguilar Castilleja - A01337242
+
+# Dependencies:
+# tensorflow == 2.3.0
 
 from datetime import date
 import random
