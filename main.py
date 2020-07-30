@@ -27,18 +27,18 @@ from tensorflow.keras.models import load_model
 from matplotlib import pyplot as plt
 
 # IMAGES
-IMAGE_ONE = Image.open("img/data_images.jpeg")
+IMAGE_ONE = Image.open("img/digits-handmade.jpg")
 IMAGE_TWO = Image.open("img/prueba1.png")
 IMAGE_THREE = Image.open("img/prueba2.png")
-IMAGE_FOUR = Image.open("img/prueba3.png")
+IMAGE_FOUR = Image.open("img/prueba3.jpeg")
 
 
 # NET CONSTANTS
 NUMBER_LAYERS = 3
-EPOCHS = 20
-OPTIMIZER = "adam"
+EPOCHS = 10
+OPTIMIZER = "Adam"
 DATE = date.today().strftime("%d-%m-%Y")
-FILENAME = "DigitNN-{}-{}-{}-{}.h5".format(
+FILENAME = "DigitNN-{}-{}-{}epochs-{}.h5".format(
     NUMBER_LAYERS, OPTIMIZER, EPOCHS, DATE)
 
 BEST_NET = "DigitNN-3-adam-20-29-07-2020.h5"
@@ -54,18 +54,27 @@ x_test = x_test / 255
 
 # MODEL
 def train(x_train, y_train, epochs=20, optimizer="adam", net=FILENAME):
-    my_file = Path("models/" + FILENAME)
+
+    if net != FILENAME:
+        my_file = Path("models/" + net)
+    else:
+        my_file = Path("models/" + FILENAME)
+
     if my_file.is_file():
-        model = load_model("models/" + FILENAME)
+        if net != FILENAME:
+            model = load_model("models/" + net)
+        else:
+            model = load_model("models/" + FILENAME)
+
         return model
 
     model = Sequential()
     model.add(Flatten())
     model.add(Dense(392, activation="relu"))
-    model.add(Dropout(0.4))
-    model.add(Dense(196, activation="relu"))
     model.add(Dropout(0.2))
-    model.add(Dense(20, activation="relu"))
+    model.add(Dense(196, activation="relu"))
+    model.add(Dropout(0.4))
+    model.add(Dense(40, activation="relu"))
     model.add(Dropout(0.2))
     model.add(Dense(10, activation="softmax"))
     model.compile(optimizer=optimizer,
@@ -73,7 +82,7 @@ def train(x_train, y_train, epochs=20, optimizer="adam", net=FILENAME):
     history = model.fit(x_train, y_train, epochs=epochs,
                         shuffle=True, validation_split=0.25)
     model.summary()
-    model.save(FILENAME)
+    model.save("models/"+FILENAME)
     print_history(history)
     model.evaluate(x_test, y_test)
     return model
@@ -168,8 +177,27 @@ def predict_images(images):
     plt.show()
 
 
-model = train(x_train, y_train, EPOCHS, OPTIMIZER, BEST_NET)
 
-images = image_preprocessing(IMAGE_FOUR, 28, False)
 
+
+# TRAINING OR IMPORTING THE MODEL
+model = train(x_train, y_train, EPOCHS, OPTIMIZER, net=BEST_NET)
+
+# BEST TRY
+# DigitNN-3-adam-20-29-07-2020
+# IMAGE_ONE 13/16 16 False 81.25%
+# IMAGE_TWO 7/10 10 True  70% 
+# IMAGE_THREE 8/10 10 True  80%
+#  
+# SECOND BEST
+# DigitNN-3-Adam-15epochs-30-07-2020
+# IMAGE_ONE 11/16  16 False  68.75%
+# IMAGE_TWO 7/10 10 True  70% 
+# IMAGE_THREE 7/10 10 True  70% 
+ 
+# IMAGE CLUSTERING AND SEGMENTATION
+# CLUSTERING: KMEANS
+images = image_preprocessing(IMAGE_ONE, 16, False)
+
+# RESULTS
 predict_images(images)
